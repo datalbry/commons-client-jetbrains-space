@@ -15,15 +15,12 @@ configure<PublishingExtension> {
                 } else {
                     uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
                 }
-                credentials {
-                    username = project.findProperty("maven.central.username") as String
-                    password = project.findProperty("maven.central.password") as String
-                }
+                setupCredentials()
             }
         }
         create<MavenPublication>("jar") {
             from(components["java"])
-            artifactId = "precise-${project.name}"
+            artifactId = "jetbrains-space-${project.name}"
             versionMapping {
                 usage("java-api") {
                     fromResolutionOf("runtimeClasspath")
@@ -33,9 +30,9 @@ configure<PublishingExtension> {
                 }
             }
             pom {
-                name.set("Precise - ${project.name}")
-                description.set("Precise is a easy to use schema framework")
-                url.set("https://github.com/datalbry/precise")
+                name.set("Jetbrains Space ${project.name}")
+                description.set("Client implementation for Jetbrains Space")
+                url.set("https://github.com/datalbry/jetbrains-space-client")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
@@ -46,13 +43,13 @@ configure<PublishingExtension> {
                     developer {
                         id.set("datalbry")
                         name.set("DataLbry")
-                        email.set("precise@datalbry.io")
+                        email.set("devops@datalbry.io")
                     }
                 }
                 scm {
-                    connection.set("https://github.com/datalbry/precise.git")
-                    developerConnection.set("scm:git:ssh:git@github.com:datalbry/precise.git")
-                    url.set("https://github.com/datalbry/precise")
+                    connection.set("https://github.com/datalbry/jetbrains-space-client.git")
+                    developerConnection.set("scm:git:ssh:git@github.com:datalbry/jetbrains-space-client.git")
+                    url.set("https://github.com/datalbry/jetbrains-space-client")
                 }
             }
         }
@@ -62,4 +59,20 @@ configure<PublishingExtension> {
 configure<SigningExtension> {
     useGpgCmd()
     sign(publishing.publications["jar"])
+}
+
+/**
+ * Setup credentials if username and password are present as properties
+ */
+fun MavenArtifactRepository.setupCredentials() {
+
+    val user = project.findProperty("maven.central.username") as String?
+    val secret = project.findProperty("maven.central.password") as String?
+
+    if (user != null && secret != null) {
+        this.credentials {
+            username = user
+            password = secret
+        }
+    }
 }
