@@ -57,8 +57,12 @@ configure<PublishingExtension> {
 }
 
 configure<SigningExtension> {
-    useGpgCmd()
-    sign(publishing.publications["jar"])
+    val keyName = project.findProperty("signing.gnupg.keyName") as String?
+    val passphrase = project.findProperty("signing.gnupg.passphrase") as String?
+    if (keyName != null && passphrase != null) {
+        useGpgCmd()
+        sign(publishing.publications["jar"])
+    }
 }
 
 /**
