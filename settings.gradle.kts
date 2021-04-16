@@ -1,6 +1,16 @@
+enableFeaturePreview("VERSION_CATALOGS")
+rootProject.name = "jetbrains-space"
 
-rootProject.name = "jetbrains-space-client"
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+}
 
+includeBuild("gradle/convention")
 
-include(":space-client-api")
+include(
+    "client"
+)
 
