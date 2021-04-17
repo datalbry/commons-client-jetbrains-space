@@ -5,6 +5,7 @@ jetbrains-kotlinx-coroutines = "1.4.3"
 ktor = "1.4.3"
 junit-core = "5.7.1"
 junit-platform-launcher = "1.7.1"
+space-client-api = "1-SNAPSHOT"
 
 [libraries]
 jetbrains-space-client = { module = "org.jetbrains:space-sdk-jvm", version.ref = "jetbrains-space-client" }
@@ -14,6 +15,7 @@ ktor-apache-http = { module = "io.ktor:ktor-client-apache", version.ref = "ktor"
 junit-platform = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform-launcher" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-core" }
 junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-core" }
+space-client-api = { module = "io.datalbry.jetbrains-space-client:space-client-api", version.ref = "space-client-api" }
 
 [bundles]
-junit = [ "junit-platform", "junit-engine", "junit-vintage" ]
+junit = ["junit-platform", "junit-engine", "junit-vintage"]

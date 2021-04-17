@@ -1,11 +1,12 @@
 package io.datalbry.jetbrains.space.client
 
+import io.datalbry.jetbrains.space.client.models.Profile
 import space.jetbrains.api.runtime.types.ProfileIdentifier
-import space.jetbrains.api.runtime.types.TD_MemberProfile
+
 
 interface ProfilesClient {
 
-    fun getProfile(profileIdentifier: ProfileIdentifier): TD_MemberProfile
+    fun getProfile(profileIdentifier: ProfileIdentifier): Profile
 
     fun getProfileIdentifier(): Iterator<ProfileIdentifier>
 }
