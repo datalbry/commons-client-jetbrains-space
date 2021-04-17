@@ -3,7 +3,7 @@ package io.datalbry.jetbrains.space.client
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
 
-internal class SpaceClientTest {
+internal class ProfilesClientImplTest {
 
     private val client = JetbrainsSpaceClientFactory.create(loadConfig())
 
