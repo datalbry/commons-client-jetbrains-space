@@ -1,7 +1,11 @@
-package io.datalbry.jetbrains.space.client
+package io.datalbry.jetbrains.space.client.profile
 
-import io.datalbry.jetbrains.space.client.models.Profile
+import io.datalbry.jetbrains.space.models.Profile
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
 import space.jetbrains.api.runtime.resources.teamDirectory
 import space.jetbrains.api.runtime.types.ProfileIdentifier
@@ -18,9 +22,9 @@ class ProfilesClientImpl(private val space: SpaceHttpClientWithCallContext) : Pr
             id = profile.id,
             archived = profile.archived,
             avatar = profile.avatar,
-            joined = profile.joined,
-            left = profile.left,
-            leftAt = profile.leftAt,
+            joined = profile.joined?.toJavaLocalDate()?.atStartOfDay(),
+            left = profile.left?.toJavaLocalDate()?.atStartOfDay(),
+            leftAt = profile.leftAt?.toLocalDateTime(TimeZone.UTC)?.toJavaLocalDateTime(),
             firstName = profile.name.firstName,
             lastName = profile.name.lastName,
             notAMember = profile.notAMember,

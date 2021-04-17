@@ -1,12 +1,11 @@
 package io.datalbry.jetbrains.space.client
 
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
-import space.jetbrains.api.runtime.types.ProfileIdentifier
 
 internal class SpaceClientTest {
 
-    private val client = ProfilesClientImpl(loadConfig())
+    private val client = JetbrainsSpaceClientFactory.create(loadConfig())
 
     @Test
     fun getProfile_worksJustFineOnSmallSubset() {
@@ -25,10 +24,4 @@ internal class SpaceClientTest {
     }
 }
 
-private fun loadConfig(): SpaceConfig {
-    return SpaceConfig(
-        System.getenv("jetbrains-space-client-id"),
-        System.getenv("jetbrains-space-client-secret"),
-        System.getenv("jetbrains-space-client-uri"),
-    )
-}
+

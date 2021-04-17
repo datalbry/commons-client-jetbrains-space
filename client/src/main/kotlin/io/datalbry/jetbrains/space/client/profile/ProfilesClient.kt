@@ -1,6 +1,6 @@
-package io.datalbry.jetbrains.space.client
+package io.datalbry.jetbrains.space.client.profile
 
-import io.datalbry.jetbrains.space.client.models.Profile
+import io.datalbry.jetbrains.space.models.Profile
 import space.jetbrains.api.runtime.types.ProfileIdentifier
 
 
