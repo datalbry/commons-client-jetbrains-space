@@ -1,7 +1,7 @@
 package io.datalbry.jetbrains.space.client.profile
 
 import io.datalbry.jetbrains.space.models.Profile
-import space.jetbrains.api.runtime.types.ProfileIdentifier
+import io.datalbry.jetbrains.space.models.ProfileIdentifier
 
 
 interface ProfilesClient {
