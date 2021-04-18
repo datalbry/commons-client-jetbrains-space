@@ -1,6 +1,7 @@
 package io.datalbry.jetbrains.space.client.blog
 
 
+import io.datalbry.jetbrains.space.client.BatchIterator
 import io.datalbry.jetbrains.space.models.Blog
 import io.datalbry.jetbrains.space.models.BlogIdentifier
 import io.datalbry.jetbrains.space.models.ProfileIdentifier
@@ -8,8 +9,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import space.jetbrains.api.runtime.Batch
+import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
 import space.jetbrains.api.runtime.resources.blog
+import space.jetbrains.api.runtime.types.ArticleRecord
 
 class BlogsClientImpl(private val space: SpaceHttpClientWithCallContext) : BlogsClient {
 
@@ -35,10 +39,13 @@ class BlogsClientImpl(private val space: SpaceHttpClientWithCallContext) : Blogs
     }
 
     override fun getBlogIdentifier(): Iterator<BlogIdentifier> {
-        return runBlocking {
-            space.blog.getAllBlogPosts() {
-                id()
+        fun getNextBatch(batchInfo: BatchInfo): Batch<ArticleRecord> {
+            return runBlocking {
+                space.blog.getAllBlogPosts(batchInfo = batchInfo) {
+                    id()
+                }
             }
-        }.data.map { BlogIdentifier(it.id) }.iterator()
+        }
+        return BatchIterator.from(::getNextBatch) { BlogIdentifier(it.id) }
     }
 }
