@@ -1,5 +1,6 @@
 package io.datalbry.jetbrains.space.client.absence
 
+import io.datalbry.jetbrains.space.client.BatchIterator
 import io.datalbry.jetbrains.space.models.Absence
 import io.datalbry.jetbrains.space.models.AbsenceIdentifier
 import io.datalbry.jetbrains.space.models.ProfileIdentifier
@@ -8,9 +9,11 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
 import space.jetbrains.api.runtime.resources.absences
+import space.jetbrains.api.runtime.types.AbsenceRecord
 
 class AbsenceClientImpl(private val space: SpaceHttpClientWithCallContext) : AbsenceClient {
 
@@ -36,44 +39,13 @@ class AbsenceClientImpl(private val space: SpaceHttpClientWithCallContext) : Abs
     }
 
     override fun getAbsenceIdentifier(): Iterator<AbsenceIdentifier> {
-        return object : Iterator<AbsenceIdentifier> {
-
-            private var batchInfo = BatchInfo("0", 100)
-            private var currentBatch = runBlocking {
-                space.absences.getAllAbsences(batchInfo=batchInfo) {
-                    id()
-                }
-            }
-            private var currentBatchElements = currentBatch.data.map { AbsenceIdentifier(it.id) }.iterator()
-
-            private fun loadNextBatch() {
-                val currentBatchTmp = runBlocking {
+        fun getNextBatch(batchInfo: BatchInfo): Batch<AbsenceRecord> {
+                return runBlocking {
                     space.absences.getAllAbsences(batchInfo = batchInfo) {
                         id()
                     }
                 }
-
-                if (currentBatchTmp.next != "") {
-                    currentBatch = currentBatchTmp
-                    currentBatchElements = currentBatch.data.map { AbsenceIdentifier(it.id) }.iterator()
-                    batchInfo = BatchInfo(currentBatch.next, 100)
-                }
-            }
-
-            override fun hasNext(): Boolean {
-                if (!currentBatchElements.hasNext()) {
-                    loadNextBatch()
-                }
-                return currentBatchElements.hasNext()
-            }
-
-            override fun next(): AbsenceIdentifier {
-                if (!currentBatchElements.hasNext()) {
-                    loadNextBatch()
-                }
-
-                return currentBatchElements.next()
-            }
         }
+        return BatchIterator.from(::getNextBatch) {AbsenceIdentifier(it.id)}
     }
 }
