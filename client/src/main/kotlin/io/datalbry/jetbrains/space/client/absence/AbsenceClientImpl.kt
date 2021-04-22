@@ -1,6 +1,6 @@
 package io.datalbry.jetbrains.space.client.absence
 
-import io.datalbry.jetbrains.space.client.BatchIterator
+import io.datalbry.jetbrains.space.client.PaginationIterator
 import io.datalbry.jetbrains.space.models.Absence
 import io.datalbry.jetbrains.space.models.AbsenceIdentifier
 import io.datalbry.jetbrains.space.models.ProfileIdentifier
@@ -39,13 +39,17 @@ class AbsenceClientImpl(private val space: SpaceHttpClientWithCallContext) : Abs
     }
 
     override fun getAbsenceIdentifier(): Iterator<AbsenceIdentifier> {
-        fun getNextBatch(batchInfo: BatchInfo): Batch<AbsenceRecord> {
-                return runBlocking {
-                    space.absences.getAllAbsences(batchInfo = batchInfo) {
-                        id()
-                    }
-                }
+        return PaginationIterator(
+            { getNextBatch(it) },
+            { AbsenceIdentifier(it.id) }
+        )
+    }
+
+    private fun getNextBatch(batchInfo: BatchInfo): Batch<AbsenceRecord> {
+        return runBlocking {
+            space.absences.getAllAbsences(batchInfo = batchInfo) {
+                id()
+            }
         }
-        return BatchIterator.from(::getNextBatch) {AbsenceIdentifier(it.id)}
     }
 }

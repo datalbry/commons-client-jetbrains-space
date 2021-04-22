@@ -1,8 +1,7 @@
 package io.datalbry.jetbrains.space.client.profile
 
-import io.datalbry.jetbrains.space.client.BatchIterator
+import io.datalbry.jetbrains.space.client.PaginationIterator
 import io.datalbry.jetbrains.space.models.Profile
-import io.datalbry.jetbrains.space.models.ProfileIdentifier
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -41,14 +40,17 @@ class ProfilesClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     }
 
     override fun getProfileIdentifier(): Iterator<io.datalbry.jetbrains.space.models.ProfileIdentifier> {
-        fun getNextBatch(batchInfo: BatchInfo): Batch<TD_MemberProfile> {
-            return runBlocking {
-                spaceClient.teamDirectory.profiles.getAllProfiles() {
-                    id()
-                }
+        return PaginationIterator(
+            { getNextBatch(it) },
+            { io.datalbry.jetbrains.space.models.ProfileIdentifier(it.id) }
+        )
+    }
+
+    private fun getNextBatch(batchInfo: BatchInfo): Batch<TD_MemberProfile> {
+        return runBlocking {
+            spaceClient.teamDirectory.profiles.getAllProfiles(batchInfo = batchInfo) {
+                id()
             }
         }
-
-        return BatchIterator.from(::getNextBatch) { io.datalbry.jetbrains.space.models.ProfileIdentifier(it.id) }
     }
 }

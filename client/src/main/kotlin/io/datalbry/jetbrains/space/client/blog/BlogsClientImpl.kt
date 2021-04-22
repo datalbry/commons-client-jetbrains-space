@@ -1,7 +1,7 @@
 package io.datalbry.jetbrains.space.client.blog
 
 
-import io.datalbry.jetbrains.space.client.BatchIterator
+import io.datalbry.jetbrains.space.client.PaginationIterator
 import io.datalbry.jetbrains.space.models.Blog
 import io.datalbry.jetbrains.space.models.BlogIdentifier
 import io.datalbry.jetbrains.space.models.ProfileIdentifier
@@ -39,13 +39,14 @@ class BlogsClientImpl(private val space: SpaceHttpClientWithCallContext) : Blogs
     }
 
     override fun getBlogIdentifier(): Iterator<BlogIdentifier> {
-        fun getNextBatch(batchInfo: BatchInfo): Batch<ArticleRecord> {
-            return runBlocking {
-                space.blog.getAllBlogPosts(batchInfo = batchInfo) {
-                    id()
-                }
+        return PaginationIterator({ getNextBatch(it) }, { BlogIdentifier(it.id) })
+    }
+
+    private fun getNextBatch(batchInfo: BatchInfo): Batch<ArticleRecord> {
+        return runBlocking {
+            space.blog.getAllBlogPosts(batchInfo = batchInfo) {
+                id()
             }
         }
-        return BatchIterator.from(::getNextBatch) { BlogIdentifier(it.id) }
     }
 }
