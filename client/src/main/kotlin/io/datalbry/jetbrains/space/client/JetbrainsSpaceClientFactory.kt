@@ -3,6 +3,7 @@ package io.datalbry.jetbrains.space.client
 import io.datalbry.jetbrains.space.client.absence.AbsenceClientImpl
 import io.datalbry.jetbrains.space.client.blog.BlogsClientImpl
 import io.datalbry.jetbrains.space.client.profile.ProfilesClientImpl
+import io.datalbry.jetbrains.space.client.projects.ProjectsClientImpl
 import io.ktor.client.*
 import space.jetbrains.api.runtime.SpaceHttpClient
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
@@ -16,7 +17,8 @@ class JetbrainsSpaceClientFactory {
             return JetbrainsSpaceClient(
                 absences=AbsenceClientImpl(space),
                 blogs=BlogsClientImpl(space),
-                profiles=ProfilesClientImpl(space)
+                profiles=ProfilesClientImpl(space),
+                projects=ProjectsClientImpl(space),
             )
         }
     }
