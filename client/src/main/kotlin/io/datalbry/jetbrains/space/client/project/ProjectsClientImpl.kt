@@ -46,14 +46,11 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         return PaginationIterator({ getNextProjectBatch(it) }, { ProjectIdentifier(it.id) })
     }
 
-    override fun getIssue(
-        issueIdentifier: IssueIdentifier,
-        projectIdentifier: ProjectIdentifier
-    ): io.datalbry.jetbrains.space.models.project.Issue {
+    override fun getIssue(issueIdentifier: IssueIdentifier): io.datalbry.jetbrains.space.models.project.Issue {
         val spaceIssue: space.jetbrains.api.runtime.types.Issue = runBlocking {
             spaceClient.projects.planning.issues.getIssueByNumber(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(projectIdentifier.id),
-                number = issueIdentifier.number
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(issueIdentifier.projectId),
+                number = issueIdentifier.issueNumber
             )
         }
         with(spaceIssue) {
@@ -67,7 +64,6 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 dueDate = dueDate?.toJavaLocalDate(),
                 number = number,
                 projectId = ProjectIdentifier(projectId),
-
                 title = title,
             )
         }
@@ -76,7 +72,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getIssueIdentifier(projectIdentifier: ProjectIdentifier): Iterator<IssueIdentifier> {
         return PaginationIterator(
             { getNextIssueBatch(it, projectIdentifier) },
-            { IssueIdentifier(it.id, it.projectId) }
+            { IssueIdentifier(projectId = it.projectId, issueNumber=it.number) }
         )
     }
 
