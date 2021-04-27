@@ -3,7 +3,7 @@ package io.datalbry.jetbrains.space.client
 import io.datalbry.jetbrains.space.client.absence.AbsenceClientImpl
 import io.datalbry.jetbrains.space.client.blog.BlogsClientImpl
 import io.datalbry.jetbrains.space.client.profile.ProfilesClientImpl
-import io.datalbry.jetbrains.space.client.projects.ProjectsClientImpl
+import io.datalbry.jetbrains.space.client.project.ProjectsClientImpl
 import io.ktor.client.*
 import space.jetbrains.api.runtime.SpaceHttpClient
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext

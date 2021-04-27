@@ -1,5 +1,6 @@
-package io.datalbry.jetbrains.space.models
+package io.datalbry.jetbrains.space.models.blog
 
+import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
 import java.time.LocalDateTime
 
 data class Blog(

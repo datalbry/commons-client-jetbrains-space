@@ -1,6 +1,6 @@
-package io.datalbry.jetbrains.space.client.projects
+package io.datalbry.jetbrains.space.client.project
 
-import io.datalbry.jetbrains.space.models.*
+import io.datalbry.jetbrains.space.models.project.*
 
 interface ProjectsClient {
 

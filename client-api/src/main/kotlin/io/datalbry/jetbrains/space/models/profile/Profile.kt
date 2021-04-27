@@ -1,4 +1,4 @@
-package io.datalbry.jetbrains.space.models
+package io.datalbry.jetbrains.space.models.profile
 
 import java.time.LocalDateTime
 

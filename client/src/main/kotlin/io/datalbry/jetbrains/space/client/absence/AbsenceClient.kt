@@ -1,7 +1,7 @@
 package io.datalbry.jetbrains.space.client.absence
 
-import io.datalbry.jetbrains.space.models.Absence
-import io.datalbry.jetbrains.space.models.AbsenceIdentifier
+import io.datalbry.jetbrains.space.models.absence.Absence
+import io.datalbry.jetbrains.space.models.absence.AbsenceIdentifier
 
 interface AbsenceClient {
 

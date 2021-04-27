@@ -3,7 +3,7 @@ package io.datalbry.jetbrains.space.client
 import io.datalbry.jetbrains.space.client.absence.AbsenceClient
 import io.datalbry.jetbrains.space.client.blog.BlogsClient
 import io.datalbry.jetbrains.space.client.profile.ProfilesClient
-import io.datalbry.jetbrains.space.client.projects.ProjectsClient
+import io.datalbry.jetbrains.space.client.project.ProjectsClient
 
 class JetbrainsSpaceClient internal constructor(
     absences: AbsenceClient,

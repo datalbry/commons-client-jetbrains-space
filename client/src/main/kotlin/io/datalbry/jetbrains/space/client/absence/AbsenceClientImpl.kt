@@ -1,9 +1,9 @@
 package io.datalbry.jetbrains.space.client.absence
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
-import io.datalbry.jetbrains.space.models.Absence
-import io.datalbry.jetbrains.space.models.AbsenceIdentifier
-import io.datalbry.jetbrains.space.models.ProfileIdentifier
+import io.datalbry.jetbrains.space.models.absence.Absence
+import io.datalbry.jetbrains.space.models.absence.AbsenceIdentifier
+import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate

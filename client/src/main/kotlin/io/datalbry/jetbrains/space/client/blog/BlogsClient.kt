@@ -1,7 +1,7 @@
 package io.datalbry.jetbrains.space.client.blog
 
-import io.datalbry.jetbrains.space.models.Blog
-import io.datalbry.jetbrains.space.models.BlogIdentifier
+import io.datalbry.jetbrains.space.models.blog.Blog
+import io.datalbry.jetbrains.space.models.blog.BlogIdentifier
 
 
 interface BlogsClient {

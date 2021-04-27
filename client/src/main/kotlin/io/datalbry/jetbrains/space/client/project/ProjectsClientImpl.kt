@@ -1,7 +1,11 @@
-package io.datalbry.jetbrains.space.client.projects
+package io.datalbry.jetbrains.space.client.project
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
-import io.datalbry.jetbrains.space.models.*
+import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
+import io.datalbry.jetbrains.space.models.project.ChecklistIdentifier
+import io.datalbry.jetbrains.space.models.project.IssueIdentifier
+import io.datalbry.jetbrains.space.models.project.Project
+import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -46,7 +50,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getIssue(
         issueIdentifier: IssueIdentifier,
         projectIdentifier: ProjectIdentifier
-    ): io.datalbry.jetbrains.space.models.Issue {
+    ): io.datalbry.jetbrains.space.models.project.Issue {
         val spaceIssue: space.jetbrains.api.runtime.types.Issue = runBlocking {
             spaceClient.projects.planning.issues.getIssueByNumber(
                 project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(projectIdentifier.id),
@@ -54,7 +58,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             )
         }
         with(spaceIssue) {
-            return io.datalbry.jetbrains.space.models.Issue(
+            return io.datalbry.jetbrains.space.models.project.Issue(
                 id = id,
                 archived = archived,
                 assignee = if (assignee != null) ProfileIdentifier(assignee!!.id) else null,
