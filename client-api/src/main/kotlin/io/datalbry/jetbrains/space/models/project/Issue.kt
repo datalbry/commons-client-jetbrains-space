@@ -14,6 +14,5 @@ data class Issue(
     val dueDate: LocalDate?,
     val number: Int,
     val projectId: ProjectIdentifier,
-
     val title: String
 )

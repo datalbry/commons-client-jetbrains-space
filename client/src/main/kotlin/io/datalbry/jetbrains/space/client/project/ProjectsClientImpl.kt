@@ -76,13 +76,6 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
-    override fun getChecklistIdentifier(projectIdentifier: ProjectIdentifier): Iterator<io.datalbry.jetbrains.space.models.project.Checklist> {
-        return PaginationIterator(
-            { getNextChecklistBatch(it, projectIdentifier) },
-            { spaceChecklistToDataLbryChecklist(it) }
-        )
-    }
-
     private fun getNextProjectBatch(batchInfo: BatchInfo): Batch<PR_Project> {
         return runBlocking {
             spaceClient.projects.getAllProjects(batchInfo = batchInfo) {
