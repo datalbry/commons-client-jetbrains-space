@@ -2,7 +2,6 @@ package io.datalbry.jetbrains.space.client.project
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
 import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
-import io.datalbry.jetbrains.space.models.project.ChecklistIdentifier
 import io.datalbry.jetbrains.space.models.project.IssueIdentifier
 import io.datalbry.jetbrains.space.models.project.Project
 import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
@@ -81,10 +80,10 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
-    override fun getChecklistIdentifier(projectIdentifier: ProjectIdentifier): Iterator<ChecklistIdentifier> {
+    override fun getChecklistIdentifier(projectIdentifier: ProjectIdentifier): Iterator<io.datalbry.jetbrains.space.models.project.Checklist> {
         return PaginationIterator(
             { getNextChecklistBatch(it, projectIdentifier) },
-            { ChecklistIdentifier(it.id) }
+            { spaceChecklistToDataLbryChecklist(it) }
         )
     }
 
@@ -118,6 +117,23 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(projectIdentifier.id)
             )
         }
+    }
 
+    companion object {
+        private fun spaceChecklistToDataLbryChecklist(spaceChecklist: Checklist): io.datalbry.jetbrains.space.models.project.Checklist {
+            return io.datalbry.jetbrains.space.models.project.Checklist(
+                id = spaceChecklist.id,
+                archived = spaceChecklist.archived,
+                description = spaceChecklist.description,
+                doneItemsCount = spaceChecklist.doneItemsCount,
+                name = spaceChecklist.name,
+                owner = if (spaceChecklist.owner != null) ProfileIdentifier(spaceChecklist.owner!!.id) else null,
+                project = if (spaceChecklist.projectId != null) ProjectIdentifier(spaceChecklist.projectId!!) else null,
+                root = spaceChecklist.root?.id,
+                rootTag = spaceChecklist.rootTag?.id,
+                totalItemsCount = spaceChecklist.totalItemsCount,
+                updatedTime = spaceChecklist.updatedTime?.toLocalDateTime(TimeZone.UTC)?.toJavaLocalDateTime()
+            )
+        }
     }
 }
