@@ -8,8 +8,9 @@ interface ProjectsClient {
 
     fun getProjectIdentifier(): Iterator<ProjectIdentifier>
 
-    fun getIssue(issueIdentifier: IssueIdentifier, projectIdentifier: ProjectIdentifier): Issue
+    fun getIssue(issueIdentifier: IssueIdentifier): Issue
 
     fun getIssueIdentifier(projectIdentifier: ProjectIdentifier): Iterator<IssueIdentifier>
+
     fun getChecklistIdentifier(projectIdentifier: ProjectIdentifier): Iterator<ChecklistIdentifier>
 }
