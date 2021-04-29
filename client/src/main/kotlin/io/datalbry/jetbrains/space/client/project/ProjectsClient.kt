@@ -11,4 +11,6 @@ interface ProjectsClient {
     fun getIssue(issueIdentifier: IssueIdentifier): Issue
 
     fun getIssueIdentifier(projectIdentifier: ProjectIdentifier): Iterator<IssueIdentifier>
+
+    fun getChecklists(projectIdentifier: ProjectIdentifier): Iterator<Checklist>
 }
