@@ -142,6 +142,14 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         }.map { RepositoryIdentifier(projectId = projectIdentifier.id, repositoryId = it.id) }.iterator()
     }
 
+    fun getPackages(repositoryIdentifier: RepositoryIdentifier): Iterator<Package> {
+        return PaginationIterator(
+            { getNextPackageBatch(it, repositoryIdentifier) },
+            { spacePackageDataToDataLbryPackageData(it) }
+        )
+    }
+
+
     private fun getNextProjectBatch(batchInfo: BatchInfo): Batch<PR_Project> {
         return runBlocking {
             spaceClient.projects.getAllProjects(batchInfo = batchInfo) {
@@ -187,6 +195,20 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                     id()
                 }
             }
+        }
+    }
+
+    private fun getNextPackageBatch(
+        batchInfo: BatchInfo,
+        repositoryIdentifier: RepositoryIdentifier
+    ): Batch<space.jetbrains.api.runtime.types.PackageData> {
+        return runBlocking {
+            spaceClient.projects.packages.repositories.packages.getAllPackages(
+                batchInfo = batchInfo,
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(repositoryIdentifier.projectId),
+                repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId),
+                query = ""
+            )
         }
     }
 
@@ -257,6 +279,24 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 branchInformation = spaceCodeReview.branchPairs.map {
                     spaceBranchPairToDataLbryBranchMergePair(it)
                 }.toList()
+            )
+        }
+
+        private fun spacePackageDataToDataLbryPackageData(spacePackageData: PackageData): Package {
+            val type = when (spacePackageData.type) {
+                is ContainerPackageType -> (spacePackageData.type as ContainerPackageType).id
+                is MavenPackageType -> (spacePackageData.type as MavenPackageType).id
+                is NpmPackageType -> (spacePackageData.type as NpmPackageType).id
+                is NuGetPackageType -> (spacePackageData.type as NuGetPackageType).id
+                else -> ""
+            }
+            return Package(
+                lastVersion = spacePackageData.lastVersion,
+                name = spacePackageData.name,
+                repository = spacePackageData.repository,
+                type = type,
+                updated = LocalDateTime.from(Instant.ofEpochMilli(spacePackageData.updated)),
+                versions = spacePackageData.versions
             )
         }
     }
