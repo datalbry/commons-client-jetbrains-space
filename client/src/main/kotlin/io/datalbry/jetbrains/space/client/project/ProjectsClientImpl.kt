@@ -2,8 +2,8 @@ package io.datalbry.jetbrains.space.client.project
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
 import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
+import io.datalbry.jetbrains.space.models.project.*
 import io.datalbry.jetbrains.space.models.project.IssueIdentifier
-import io.datalbry.jetbrains.space.models.project.Project
 import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
@@ -14,10 +14,11 @@ import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
 import space.jetbrains.api.runtime.resources.projects
+import space.jetbrains.api.runtime.types.*
 import space.jetbrains.api.runtime.types.Checklist
 import space.jetbrains.api.runtime.types.Issue
-import space.jetbrains.api.runtime.types.IssuesSorting
-import space.jetbrains.api.runtime.types.PR_Project
+import java.time.Instant
+import java.time.LocalDateTime
 
 class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext) : ProjectsClient {
 
@@ -83,6 +84,53 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
+    fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview? {
+        val spaceCodeReview: CodeReviewRecord? = runBlocking {
+            spaceClient.projects.codeReviews.getCodeReview(
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(codeReviewIdentifier.projectId),
+                reviewId = ReviewIdentifier.Id(codeReviewIdentifier.reviewId)
+            )
+        }
+
+        when (spaceCodeReview) {
+            is MergeRequestRecord -> return MergeRequestCodeReview(
+                id = spaceCodeReview.id,
+                canBeReopened = spaceCodeReview.canBeReopened,
+                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
+                number = spaceCodeReview.number,
+                projectKey = spaceCodeReview.project.key,
+                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
+                state = spaceCodeReview.state.name,
+                title = spaceCodeReview.title,
+                turnBased = spaceCodeReview.turnBased
+            )
+
+            is CommitSetReviewRecord -> return CommitSetCodeReview(
+                id = spaceCodeReview.id,
+                canBeReopened = spaceCodeReview.canBeReopened,
+                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
+                number = spaceCodeReview.number,
+                projectKey = spaceCodeReview.project.key,
+                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
+                state = spaceCodeReview.state.name,
+                title = spaceCodeReview.title,
+                turnBased = spaceCodeReview.turnBased
+            )
+
+            else -> null
+        }
+
+    }
+
+    fun getCodeReviewIdentifier(projectIdentifier: ProjectIdentifier): Iterator<CodeReviewIdentifier> {
+        return PaginationIterator(
+            { getNextCodeReviewBatch(it, projectIdentifier) },
+            { CodeReviewIdentifier(projectId = projectIdentifier.id, reviewId = it.review.id) }
+        )
+    }
+
     private fun getNextProjectBatch(batchInfo: BatchInfo): Batch<PR_Project> {
         return runBlocking {
             spaceClient.projects.getAllProjects(batchInfo = batchInfo) {
@@ -114,6 +162,23 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             )
         }
     }
+
+    private fun getNextCodeReviewBatch(
+        batchInfo: BatchInfo,
+        projectIdentifier: ProjectIdentifier
+    ): Batch<CodeReviewWithCount> {
+        return runBlocking {
+            spaceClient.projects.codeReviews.getAllCodeReviews(
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(projectIdentifier.id),
+                batchInfo = batchInfo,
+            ) {
+                review {
+                    id()
+                }
+            }
+        }
+    }
+
 
     companion object {
         private fun spaceChecklistToDataLbryChecklist(spaceChecklist: Checklist): io.datalbry.jetbrains.space.models.project.Checklist {
