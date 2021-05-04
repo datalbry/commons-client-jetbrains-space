@@ -1,6 +1,6 @@
 package io.datalbry.jetbrains.space.models.project
 
-data class CodeReviewIdentifier(
+data class RepositoryIdentifier(
     val projectId: String,
-    val reviewId: String
+    val repositoryId: String
 )

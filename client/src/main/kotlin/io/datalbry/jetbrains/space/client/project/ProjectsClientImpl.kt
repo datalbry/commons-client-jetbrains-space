@@ -5,6 +5,7 @@ import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
 import io.datalbry.jetbrains.space.models.project.*
 import io.datalbry.jetbrains.space.models.project.IssueIdentifier
 import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
+import io.datalbry.jetbrains.space.models.project.codereview.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -107,6 +108,40 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
+    fun getRepository(repositoryIdentifier: RepositoryIdentifier): Repository? {
+        val spaceRepository = runBlocking {
+            spaceClient.projects.packages.repositories.getRepository(
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(repositoryIdentifier.projectId),
+                repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId)
+            )
+        }
+
+        if (spaceRepository == null) {
+            return spaceRepository
+        }
+
+        return Repository(
+            id = spaceRepository.id,
+            archived = spaceRepository.archived,
+            description = spaceRepository.description,
+            name = spaceRepository.name,
+            project = ProjectIdentifier(spaceRepository.project.id),
+            packageRepositoryId = spaceRepository.repository.id,
+        )
+    }
+
+    fun getRepositoryIdentifier(projectIdentifier: ProjectIdentifier): Iterator<RepositoryIdentifier> {
+        // this already returns a list and not a batch object hence we don't need a PaginationIterator like in the
+        // other methods
+        return runBlocking {
+            spaceClient.projects.packages.repositories.getRepositories(
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(projectIdentifier.id),
+            ) {
+                id()
+            }
+        }.map { RepositoryIdentifier(projectId = projectIdentifier.id, repositoryId = it.id) }.iterator()
+    }
+
     private fun getNextProjectBatch(batchInfo: BatchInfo): Batch<PR_Project> {
         return runBlocking {
             spaceClient.projects.getAllProjects(batchInfo = batchInfo) {
@@ -154,7 +189,6 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             }
         }
     }
-
 
     companion object {
         private fun spaceChecklistToDataLbryChecklist(spaceChecklist: Checklist): io.datalbry.jetbrains.space.models.project.Checklist {

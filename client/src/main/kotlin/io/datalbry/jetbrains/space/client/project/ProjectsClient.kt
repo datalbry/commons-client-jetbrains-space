@@ -1,6 +1,8 @@
 package io.datalbry.jetbrains.space.client.project
 
 import io.datalbry.jetbrains.space.models.project.*
+import io.datalbry.jetbrains.space.models.project.codereview.CodeReview
+import io.datalbry.jetbrains.space.models.project.codereview.CodeReviewIdentifier
 
 interface ProjectsClient {
 

@@ -13,7 +13,9 @@ import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
 import space.jetbrains.api.runtime.resources.absences
+import space.jetbrains.api.runtime.resources.projects
 import space.jetbrains.api.runtime.types.AbsenceRecord
+import space.jetbrains.api.runtime.types.ProjectIdentifier
 
 class AbsenceClientImpl(private val space: SpaceHttpClientWithCallContext) : AbsenceClient {
 
