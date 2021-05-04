@@ -29,20 +29,23 @@ data class CommitSetCodeReview(
     override val turnBased: Boolean?
 ): CodeReview()
 
+
+data class BranchMergePair(
+    val isMerged: Boolean?,
+    val repository: String,
+    val source: BranchInformation?,
+    val target: BranchInformation?
+)
+
+data class BranchInformation(
+    val isDeleted: Boolean,
+    val displayName: String,
+    val head: String?,
+    val reference: String,
+)
+
 data class MergeRequestCodeReview(
     override val id: String,
-    // val branchIsMerged: Boolean?,
-    // val repository: String,
-    // val sourceBranch: String,
-    // val sourceBranchDelted: Boolean,
-    // val sourceBranchDisplayName: String,
-    // val sourceBranchHead: String?,
-    // val sourceBranchReference: String,
-    // val targetBranch: String,
-    // val targetBranchDelted: Boolean,
-    // val targetBranchDisplayName: String,
-    // val targetBranchHead: String?,
-    // val targetBranchReference: String,
     override val canBeReopened: Boolean?,
     override val createdAt: LocalDateTime,
     override val createdBy: ProfileIdentifier?,
@@ -51,5 +54,6 @@ data class MergeRequestCodeReview(
     override val projectIdentifier: ProjectIdentifier,
     override val state: String,
     override val title: String,
-    override val turnBased: Boolean?
+    override val turnBased: Boolean?,
+    val branchInformation: List<BranchMergePair>
 ) : CodeReview()

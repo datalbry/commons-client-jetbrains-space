@@ -84,7 +84,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
-    fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview? {
+    override fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview? {
         val spaceCodeReview: CodeReviewRecord? = runBlocking {
             spaceClient.projects.codeReviews.getCodeReview(
                 project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(codeReviewIdentifier.projectId),
@@ -92,39 +92,15 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             )
         }
 
-        when (spaceCodeReview) {
-            is MergeRequestRecord -> return MergeRequestCodeReview(
-                id = spaceCodeReview.id,
-                canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
-                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
-                number = spaceCodeReview.number,
-                projectKey = spaceCodeReview.project.key,
-                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
-                state = spaceCodeReview.state.name,
-                title = spaceCodeReview.title,
-                turnBased = spaceCodeReview.turnBased
-            )
-
-            is CommitSetReviewRecord -> return CommitSetCodeReview(
-                id = spaceCodeReview.id,
-                canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
-                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
-                number = spaceCodeReview.number,
-                projectKey = spaceCodeReview.project.key,
-                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
-                state = spaceCodeReview.state.name,
-                title = spaceCodeReview.title,
-                turnBased = spaceCodeReview.turnBased
-            )
-
+        return when (spaceCodeReview) {
+            is MergeRequestRecord -> spaceMergeReviewToDataLbryMergeReview(spaceCodeReview)
+            is CommitSetReviewRecord -> spaceCodeReviewToDataLbryCodeReview(spaceCodeReview)
             else -> null
         }
 
     }
 
-    fun getCodeReviewIdentifier(projectIdentifier: ProjectIdentifier): Iterator<CodeReviewIdentifier> {
+    override fun getCodeReviewIdentifier(projectIdentifier: ProjectIdentifier): Iterator<CodeReviewIdentifier> {
         return PaginationIterator(
             { getNextCodeReviewBatch(it, projectIdentifier) },
             { CodeReviewIdentifier(projectId = projectIdentifier.id, reviewId = it.review.id) }
@@ -194,6 +170,59 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 rootTag = spaceChecklist.rootTag?.id,
                 totalItemsCount = spaceChecklist.totalItemsCount,
                 updatedTime = spaceChecklist.updatedTime?.toLocalDateTime(TimeZone.UTC)?.toJavaLocalDateTime()
+            )
+        }
+
+        private fun spaceBranchToDataLbryBranch(branch: MergeRequestBranch?): BranchInformation? {
+            return if (branch != null) {
+                BranchInformation(
+                    isDeleted = branch.deleted,
+                    displayName = branch.displayName,
+                    head = branch.head,
+                    reference = branch.ref
+                )
+            } else null
+        }
+
+        private fun spaceBranchPairToDataLbryBranchMergePair(mergeRequestBranchPair: MergeRequestBranchPair): BranchMergePair {
+            return BranchMergePair(
+                isMerged = mergeRequestBranchPair.isMerged,
+                repository = mergeRequestBranchPair.repository,
+                source = spaceBranchToDataLbryBranch(mergeRequestBranchPair.sourceBranchInfo),
+                target = spaceBranchToDataLbryBranch(mergeRequestBranchPair.targetBranchInfo),
+            )
+        }
+
+        private fun spaceCodeReviewToDataLbryCodeReview(spaceCodeReview: CommitSetReviewRecord): CommitSetCodeReview {
+            return CommitSetCodeReview(
+                id = spaceCodeReview.id,
+                canBeReopened = spaceCodeReview.canBeReopened,
+                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
+                number = spaceCodeReview.number,
+                projectKey = spaceCodeReview.project.key,
+                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
+                state = spaceCodeReview.state.name,
+                title = spaceCodeReview.title,
+                turnBased = spaceCodeReview.turnBased
+            )
+        }
+
+        private fun spaceMergeReviewToDataLbryMergeReview(spaceCodeReview: MergeRequestRecord): MergeRequestCodeReview {
+            return MergeRequestCodeReview(
+                id = spaceCodeReview.id,
+                canBeReopened = spaceCodeReview.canBeReopened,
+                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
+                number = spaceCodeReview.number,
+                projectKey = spaceCodeReview.project.key,
+                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
+                state = spaceCodeReview.state.name,
+                title = spaceCodeReview.title,
+                turnBased = spaceCodeReview.turnBased,
+                branchInformation = spaceCodeReview.branchPairs.map {
+                    spaceBranchPairToDataLbryBranchMergePair(it)
+                }.toList()
             )
         }
     }
