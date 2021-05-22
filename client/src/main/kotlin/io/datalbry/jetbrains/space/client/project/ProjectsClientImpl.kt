@@ -74,7 +74,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getIssueIdentifier(projectIdentifier: ProjectIdentifier): Iterator<IssueIdentifier> {
         return PaginationIterator(
             { getNextIssueBatch(it, projectIdentifier) },
-            { IssueIdentifier(projectId = it.projectId, issueNumber = it.number) }
+            { IssueIdentifier(projectId = it.id, issueNumber = it.number) }
         )
     }
 
