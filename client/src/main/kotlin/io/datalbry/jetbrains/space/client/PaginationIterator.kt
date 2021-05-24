@@ -12,11 +12,11 @@ class PaginationIterator<T, S>(
     private var currentBatchElements = currentBatch.data.map(transformer).iterator()
 
     private fun loadNextBatch() {
+        batchInfo = BatchInfo(currentBatch.next, 100)
         val currentBatchTmp = fetchNextBatch(batchInfo)
         if (currentBatchTmp.next != "") {
             currentBatch = currentBatchTmp
             currentBatchElements = currentBatch.data.map(transformer).iterator()
-            batchInfo = BatchInfo(currentBatch.next, 100)
         }
     }
 
