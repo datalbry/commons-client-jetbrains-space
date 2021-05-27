@@ -51,7 +51,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getIssue(issueIdentifier: IssueIdentifier): io.datalbry.jetbrains.space.models.project.Issue {
         val spaceIssue: space.jetbrains.api.runtime.types.Issue = runBlocking {
             spaceClient.projects.planning.issues.getIssueByNumber(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(issueIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(issueIdentifier.projectKey),
                 number = issueIdentifier.issueNumber
             )
         }
@@ -74,7 +74,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getIssueIdentifier(projectIdentifier: ProjectIdentifier): Iterator<IssueIdentifier> {
         return PaginationIterator(
             { getNextIssueBatch(it, projectIdentifier) },
-            { IssueIdentifier(projectId = it.id, issueNumber = it.number) }
+            { IssueIdentifier(projectKey = projectIdentifier.key, issueNumber = it.number) }
         )
     }
 
@@ -88,7 +88,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview? {
         val spaceCodeReview: CodeReviewRecord? = runBlocking {
             spaceClient.projects.codeReviews.getCodeReview(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(codeReviewIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(codeReviewIdentifier.projectId),
                 reviewId = ReviewIdentifier.Id(codeReviewIdentifier.reviewId)
             )
         }
@@ -111,7 +111,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     fun getRepository(repositoryIdentifier: RepositoryIdentifier): Repository? {
         val spaceRepository = runBlocking {
             spaceClient.projects.packages.repositories.getRepository(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(repositoryIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectId),
                 repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId)
             )
         }
@@ -168,7 +168,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 descending = false,
                 batchInfo = batchInfo
             ) {
-                id()
+                number()
             }
         }
     }
@@ -205,7 +205,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         return runBlocking {
             spaceClient.projects.packages.repositories.packages.getAllPackages(
                 batchInfo = batchInfo,
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Id(repositoryIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectId),
                 repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId),
                 query = ""
             )
