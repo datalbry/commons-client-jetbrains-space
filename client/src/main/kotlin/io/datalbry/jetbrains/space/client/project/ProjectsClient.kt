@@ -17,4 +17,6 @@ interface ProjectsClient {
     fun getChecklists(projectIdentifier: ProjectIdentifier): Iterator<Checklist>
     fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview?
     fun getCodeReviewIdentifier(projectIdentifier: ProjectIdentifier): Iterator<CodeReviewIdentifier>
+    fun getRepository(repositoryIdentifier: RepositoryIdentifier): Repository?
+    fun getRepositoryIdentifier(projectIdentifier: ProjectIdentifier): Iterator<RepositoryIdentifier>
 }

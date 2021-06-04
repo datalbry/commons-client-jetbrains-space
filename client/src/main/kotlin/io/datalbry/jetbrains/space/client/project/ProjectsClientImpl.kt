@@ -88,7 +88,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getCodeReview(codeReviewIdentifier: CodeReviewIdentifier): CodeReview? {
         val spaceCodeReview: CodeReviewRecord? = runBlocking {
             spaceClient.projects.codeReviews.getCodeReview(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(codeReviewIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(codeReviewIdentifier.projectKey),
                 reviewId = ReviewIdentifier.Id(codeReviewIdentifier.reviewId)
             )
         }
@@ -104,14 +104,14 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getCodeReviewIdentifier(projectIdentifier: ProjectIdentifier): Iterator<CodeReviewIdentifier> {
         return PaginationIterator(
             { getNextCodeReviewBatch(it, projectIdentifier) },
-            { CodeReviewIdentifier(projectId = projectIdentifier.key, reviewId = it.review.id) }
+            { CodeReviewIdentifier(projectKey = projectIdentifier.key, reviewId = it.review.id) }
         )
     }
 
-    fun getRepository(repositoryIdentifier: RepositoryIdentifier): Repository? {
+    override fun getRepository(repositoryIdentifier: RepositoryIdentifier): Repository? {
         val spaceRepository = runBlocking {
             spaceClient.projects.packages.repositories.getRepository(
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectKey),
                 repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId)
             )
         }
@@ -130,7 +130,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         )
     }
 
-    fun getRepositoryIdentifier(projectIdentifier: ProjectIdentifier): Iterator<RepositoryIdentifier> {
+    override fun getRepositoryIdentifier(projectIdentifier: ProjectIdentifier): Iterator<RepositoryIdentifier> {
         // this already returns a list and not a batch object hence we don't need a PaginationIterator like in the
         // other methods
         return runBlocking {
@@ -139,7 +139,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             ) {
                 id()
             }
-        }.map { RepositoryIdentifier(projectId = projectIdentifier.key, repositoryId = it.id) }.iterator()
+        }.map { RepositoryIdentifier(projectKey = projectIdentifier.key, repositoryId = it.id) }.iterator()
     }
 
     fun getPackages(repositoryIdentifier: RepositoryIdentifier): Iterator<Package> {
@@ -148,7 +148,6 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             { spacePackageDataToDataLbryPackageData(it) }
         )
     }
-
 
     private fun getNextProjectBatch(batchInfo: BatchInfo): Batch<PR_Project> {
         return runBlocking {
@@ -206,7 +205,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         return runBlocking {
             spaceClient.projects.packages.repositories.packages.getAllPackages(
                 batchInfo = batchInfo,
-                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectId),
+                project = space.jetbrains.api.runtime.types.ProjectIdentifier.Key(repositoryIdentifier.projectKey),
                 repository = PackageRepositoryIdentifier.Id(repositoryIdentifier.repositoryId),
                 query = ""
             )
