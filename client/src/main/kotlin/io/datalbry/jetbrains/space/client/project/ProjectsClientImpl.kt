@@ -20,6 +20,7 @@ import space.jetbrains.api.runtime.types.Checklist
 import space.jetbrains.api.runtime.types.Issue
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext) : ProjectsClient {
 
@@ -253,7 +254,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
             return CommitSetCodeReview(
                 id = spaceCodeReview.id,
                 canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(spaceCodeReview.createdAt), ZoneOffset.UTC),
                 createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
                 number = spaceCodeReview.number,
                 projectKey = spaceCodeReview.project.key,
@@ -265,10 +266,11 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         }
 
         private fun spaceMergeReviewToDataLbryMergeReview(spaceCodeReview: MergeRequestRecord): MergeRequestCodeReview {
+
             return MergeRequestCodeReview(
                 id = spaceCodeReview.id,
                 canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.from(Instant.ofEpochMilli(spaceCodeReview.createdAt)),
+                createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(spaceCodeReview.createdAt), ZoneOffset.UTC),
                 createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
                 number = spaceCodeReview.number,
                 projectKey = spaceCodeReview.project.key,
