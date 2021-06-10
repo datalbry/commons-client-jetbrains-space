@@ -10,7 +10,6 @@ class JetbrainsSpaceClient internal constructor(
     blogs: BlogsClient,
     profiles: ProfilesClient,
     projects: ProjectsClient
-
 ) : AbsenceClient by absences,
     BlogsClient by blogs,
     ProfilesClient by profiles,

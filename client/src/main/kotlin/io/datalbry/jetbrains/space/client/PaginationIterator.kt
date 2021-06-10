@@ -3,6 +3,13 @@ package io.datalbry.jetbrains.space.client
 import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 
+/**
+ * PaginationIterator allows to simply iterate over the batches returned by the JetBrains Space client with the default
+ * batch size of 100.
+ *
+ * @param fetchNextBatch: A function which takes a BatchInfo object and produces a new batch.
+ * @param transformer: A function which transforms the objects from the batch.
+ */
 class PaginationIterator<T, S>(
     private val fetchNextBatch: (BatchInfo) -> Batch<T>,
     private val transformer: (T) -> S
