@@ -1,13 +1,15 @@
 package io.datalbry.jetbrains.space.client.project
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
+import io.datalbry.jetbrains.space.client.toJavaLocalDateTime
+import io.datalbry.jetbrains.space.client.toLocalDateTime
 import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
 import io.datalbry.jetbrains.space.models.project.*
 import io.datalbry.jetbrains.space.models.project.IssueIdentifier
 import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
 import io.datalbry.jetbrains.space.models.project.codereview.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.*
+import kotlinx.datetime.toJavaLocalDate
 import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
@@ -17,7 +19,6 @@ import space.jetbrains.api.runtime.types.Checklist
 import space.jetbrains.api.runtime.types.Issue
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext) : ProjectsClient {
 
@@ -34,8 +35,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 description = description,
                 icon = icon,
                 projectKey = key.key,
-                latestRepositoryActivity = latestRepositoryActivity?.toLocalDateTime(TimeZone.UTC)
-                    ?.toJavaLocalDateTime(),
+                latestRepositoryActivity = latestRepositoryActivity?.toJavaLocalDateTime(),
                 name = name,
                 private = private
             )
@@ -60,7 +60,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
                 assignee = if (assignee != null) ProfileIdentifier(assignee!!.id) else null,
                 attachmentsCount = attachmentsCount,
                 createdBy = createdBy.name,
-                creationTime = creationTime.toLocalDateTime(TimeZone.UTC).toJavaLocalDateTime(),
+                creationTime = creationTime.toJavaLocalDateTime(),
                 dueDate = dueDate?.toJavaLocalDate(),
                 number = number,
                 projectId = ProjectIdentifier(projectId),
@@ -279,7 +279,6 @@ internal fun Checklist.toDataLbryChecklist() = io.datalbry.jetbrains.space.model
     root = root?.id,
     rootTag = rootTag?.id,
     totalItemsCount = totalItemsCount,
-    updatedTime = updatedTime?.toJavaInstant()?.toLocalDateTime()
+    updatedTime = updatedTime?.toJavaLocalDateTime()
 )
 
-internal fun Instant.toLocalDateTime() = LocalDateTime.ofInstant(this, ZoneOffset.UTC)

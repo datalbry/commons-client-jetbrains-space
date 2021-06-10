@@ -2,6 +2,7 @@ package io.datalbry.jetbrains.space.client.blog
 
 
 import io.datalbry.jetbrains.space.client.PaginationIterator
+import io.datalbry.jetbrains.space.client.toJavaLocalDateTime
 import io.datalbry.jetbrains.space.models.blog.Blog
 import io.datalbry.jetbrains.space.models.blog.BlogIdentifier
 import io.datalbry.jetbrains.space.models.profile.ProfileIdentifier
@@ -24,18 +25,7 @@ class BlogsClientImpl(private val space: SpaceHttpClientWithCallContext) : Blogs
             )
         }
 
-        with(articleRecord) {
-            return Blog(
-                id = id,
-                archived = archived,
-                archivedAt = archivedAt?.toLocalDateTime(TimeZone.UTC)?.toJavaLocalDateTime(),
-                archivedBy = if (archivedBy != null) ProfileIdentifier(archivedBy!!.id) else null,
-                author = ProfileIdentifier(author.id),
-                created = created.toLocalDateTime(TimeZone.UTC).toJavaLocalDateTime(),
-                title = title
-            )
-        }
-
+        return articleRecord.toBlog()
     }
 
     override fun getBlogIdentifier(): Iterator<BlogIdentifier> {
@@ -50,3 +40,12 @@ class BlogsClientImpl(private val space: SpaceHttpClientWithCallContext) : Blogs
         }
     }
 }
+
+internal fun ArticleRecord.toBlog() = Blog(id = id,
+    archived = archived,
+    archivedAt = archivedAt?.toJavaLocalDateTime(),
+    archivedBy = if (archivedBy != null) ProfileIdentifier(archivedBy!!.id) else null,
+    author = ProfileIdentifier(author.id),
+    created = created.toJavaLocalDateTime(),
+    title = title
+)
