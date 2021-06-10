@@ -7,10 +7,7 @@ import io.datalbry.jetbrains.space.models.project.IssueIdentifier
 import io.datalbry.jetbrains.space.models.project.ProjectIdentifier
 import io.datalbry.jetbrains.space.models.project.codereview.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDate
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import space.jetbrains.api.runtime.Batch
 import space.jetbrains.api.runtime.BatchInfo
 import space.jetbrains.api.runtime.SpaceHttpClientWithCallContext
@@ -82,7 +79,7 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     override fun getChecklists(projectIdentifier: ProjectIdentifier): Iterator<io.datalbry.jetbrains.space.models.project.Checklist> {
         return PaginationIterator(
             { getNextChecklistBatch(it, projectIdentifier) },
-            { spaceChecklistToDataLbryChecklist(it) }
+            Checklist::toDataLbryChecklist
         )
     }
 
@@ -95,8 +92,8 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         }
 
         return when (spaceCodeReview) {
-            is MergeRequestRecord -> spaceMergeReviewToDataLbryMergeReview(spaceCodeReview)
-            is CommitSetReviewRecord -> spaceCodeReviewToDataLbryCodeReview(spaceCodeReview)
+            is MergeRequestRecord -> spaceCodeReview.toDataLbryMergeReview()
+            is CommitSetReviewRecord -> spaceCodeReview.toToDataLbryCodeReview()
             else -> null
         }
 
@@ -214,76 +211,6 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
     }
 
     companion object {
-        private fun spaceChecklistToDataLbryChecklist(spaceChecklist: Checklist): io.datalbry.jetbrains.space.models.project.Checklist {
-            return io.datalbry.jetbrains.space.models.project.Checklist(
-                id = spaceChecklist.id,
-                archived = spaceChecklist.archived,
-                description = spaceChecklist.description,
-                doneItemsCount = spaceChecklist.doneItemsCount,
-                name = spaceChecklist.name,
-                owner = if (spaceChecklist.owner != null) ProfileIdentifier(spaceChecklist.owner!!.id) else null,
-                project = if (spaceChecklist.projectId != null) ProjectIdentifier(spaceChecklist.projectId!!) else null,
-                root = spaceChecklist.root?.id,
-                rootTag = spaceChecklist.rootTag?.id,
-                totalItemsCount = spaceChecklist.totalItemsCount,
-                updatedTime = spaceChecklist.updatedTime?.toLocalDateTime(TimeZone.UTC)?.toJavaLocalDateTime()
-            )
-        }
-
-        private fun spaceBranchToDataLbryBranch(branch: MergeRequestBranch?): BranchInformation? {
-            return if (branch != null) {
-                BranchInformation(
-                    isDeleted = branch.deleted,
-                    displayName = branch.displayName,
-                    head = branch.head,
-                    reference = branch.ref
-                )
-            } else null
-        }
-
-        private fun spaceBranchPairToDataLbryBranchMergePair(mergeRequestBranchPair: MergeRequestBranchPair): BranchMergePair {
-            return BranchMergePair(
-                isMerged = mergeRequestBranchPair.isMerged,
-                repository = mergeRequestBranchPair.repository,
-                source = spaceBranchToDataLbryBranch(mergeRequestBranchPair.sourceBranchInfo),
-                target = spaceBranchToDataLbryBranch(mergeRequestBranchPair.targetBranchInfo),
-            )
-        }
-
-        private fun spaceCodeReviewToDataLbryCodeReview(spaceCodeReview: CommitSetReviewRecord): CommitSetCodeReview {
-            return CommitSetCodeReview(
-                id = spaceCodeReview.id,
-                canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(spaceCodeReview.createdAt), ZoneOffset.UTC),
-                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
-                number = spaceCodeReview.number,
-                projectKey = spaceCodeReview.project.key,
-                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
-                state = spaceCodeReview.state.name,
-                title = spaceCodeReview.title,
-                turnBased = spaceCodeReview.turnBased
-            )
-        }
-
-        private fun spaceMergeReviewToDataLbryMergeReview(spaceCodeReview: MergeRequestRecord): MergeRequestCodeReview {
-
-            return MergeRequestCodeReview(
-                id = spaceCodeReview.id,
-                canBeReopened = spaceCodeReview.canBeReopened,
-                createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(spaceCodeReview.createdAt), ZoneOffset.UTC),
-                createdBy = if (spaceCodeReview.createdBy?.id != null) ProfileIdentifier(spaceCodeReview.createdBy!!.id) else null,
-                number = spaceCodeReview.number,
-                projectKey = spaceCodeReview.project.key,
-                projectIdentifier = ProjectIdentifier(spaceCodeReview.projectId),
-                state = spaceCodeReview.state.name,
-                title = spaceCodeReview.title,
-                turnBased = spaceCodeReview.turnBased,
-                branchInformation = spaceCodeReview.branchPairs.map {
-                    spaceBranchPairToDataLbryBranchMergePair(it)
-                }.toList()
-            )
-        }
-
         private fun spacePackageDataToDataLbryPackageData(spacePackageData: PackageData): Package {
             val type = when (spacePackageData.type) {
                 is ContainerPackageType -> (spacePackageData.type as ContainerPackageType).id
@@ -303,3 +230,56 @@ class ProjectsClientImpl(private val spaceClient: SpaceHttpClientWithCallContext
         }
     }
 }
+
+internal fun CommitSetReviewRecord.toToDataLbryCodeReview() = CommitSetCodeReview(
+    id = id,
+    canBeReopened = canBeReopened,
+    createdAt = Instant.ofEpochMilli(createdAt).toLocalDateTime(),
+    createdBy = if (createdBy?.id != null) ProfileIdentifier(createdBy!!.id) else null,
+    number = number,
+    projectKey = project.key,
+    projectIdentifier = ProjectIdentifier(projectId),
+    state = state.name,
+    title = title,
+    turnBased = turnBased
+)
+
+internal fun MergeRequestBranch.toDataLbryBranchInformation() =
+    BranchInformation(isDeleted = deleted, displayName = displayName, head = head, reference = ref)
+
+internal fun MergeRequestBranchPair.toDataLbryBranchMergePair() = BranchMergePair(
+    isMerged = isMerged,
+    repository = repository,
+    source = sourceBranchInfo?.toDataLbryBranchInformation(),
+    target = targetBranchInfo?.toDataLbryBranchInformation(),
+)
+
+internal fun MergeRequestRecord.toDataLbryMergeReview() = MergeRequestCodeReview(
+    id = id,
+    canBeReopened = canBeReopened,
+    createdAt = Instant.ofEpochMilli(createdAt).toLocalDateTime(),
+    createdBy = if (createdBy?.id != null) ProfileIdentifier(createdBy!!.id) else null,
+    number = number,
+    projectKey = project.key,
+    projectIdentifier = ProjectIdentifier(projectId),
+    state = state.name,
+    title = title,
+    turnBased = turnBased,
+    branchInformation = branchPairs.map(MergeRequestBranchPair::toDataLbryBranchMergePair).toList()
+)
+
+internal fun Checklist.toDataLbryChecklist() = io.datalbry.jetbrains.space.models.project.Checklist(
+    id = id,
+    archived = archived,
+    description = description,
+    doneItemsCount = doneItemsCount,
+    name = name,
+    owner = if (owner != null) ProfileIdentifier(owner!!.id) else null,
+    project = if (projectId != null) ProjectIdentifier(projectId!!) else null,
+    root = root?.id,
+    rootTag = rootTag?.id,
+    totalItemsCount = totalItemsCount,
+    updatedTime = updatedTime?.toJavaInstant()?.toLocalDateTime()
+)
+
+internal fun Instant.toLocalDateTime() = LocalDateTime.ofInstant(this, ZoneOffset.UTC)
