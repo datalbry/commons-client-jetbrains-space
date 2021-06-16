@@ -3,15 +3,16 @@ package io.datalbry.jetbrains.space.client
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Test
 
-internal class ProfilesClientImplTest {
+internal class AbsencesClientImplTest {
 
     private val client = JetbrainsSpaceClientFactory.create(loadConfig())
 
     @Test
-    fun getProfile_worksJustFineOnSmallSubset() {
+    fun getAbsence_worksJustFineOnSmallSubset() {
         assertDoesNotThrow {
-            client.getProfileIdentifier().asSequence().take(10).forEach {
-                client.getProfile(it)
+            val elements = client.getAbsenceIdentifier().asSequence().take(10).toList()
+            elements.forEach {
+                client.getAbsence(it)
             }
         }
     }
@@ -19,7 +20,7 @@ internal class ProfilesClientImplTest {
     @Test
     fun getAllProfiles_worksJustFine() {
         assertDoesNotThrow {
-            client.getProfileIdentifier()
+            client.getAbsenceIdentifier()
         }
     }
 }

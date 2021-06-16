@@ -11,6 +11,7 @@ pluginManagement {
 includeBuild("gradle/convention")
 
 include(
-    "client"
+    "client",
+    "client-api"
 )
 
