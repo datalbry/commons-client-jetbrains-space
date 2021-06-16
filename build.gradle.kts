@@ -1,4 +1,5 @@
 plugins {
+    id("datalbry.publish-maven-central")
     idea
 }
 
