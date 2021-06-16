@@ -1,11 +1,6 @@
 plugins {
     id("datalbry.kotlin")
-    id("datalbry.publish-maven-central")
-}
-
-repositories {
-    mavenCentral()
-    google()
+    id("datalbry.publication")
 }
 
 tasks.withType<Test> {

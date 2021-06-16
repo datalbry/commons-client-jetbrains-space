@@ -1,5 +1,4 @@
 plugins {
-    id("datalbry.publish-maven-lock")
     idea
 }
 
