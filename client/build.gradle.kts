@@ -4,9 +4,13 @@ plugins {
 }
 
 tasks.withType<Test> {
-    environment["jetbrains-space-client-id"] = properties["jetbrains-space-client-id"]
-    environment["jetbrains-space-client-secret"] = properties["jetbrains-space-client-secret"]
-    environment["jetbrains-space-client-uri"] = properties["jetbrains-space-client-uri"]
+    setEnvironmentIfNotPresent("JETBRAINS_SPACE_CLIENT_ID", "jetbrains.space.client.id")
+    setEnvironmentIfNotPresent("JETBRAINS_SPACE_CLIENT_SECRET", "jetbrains.space.client.secret")
+    setEnvironmentIfNotPresent("JETBRAINS_SPACE_CLIENT_URI", "jetbrains.space.client.uri")
+}
+
+fun Test.setEnvironmentIfNotPresent(id: String, property: String) {
+    if (!environment.containsKey(id)) environment[id] = properties[property]
 }
 
 dependencies {

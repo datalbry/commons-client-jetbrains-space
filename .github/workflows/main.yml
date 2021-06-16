@@ -37,7 +37,11 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         name: Tests
         with:
-          arguments: test
+          arguments: >
+            test
+            -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
+            -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
+            -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}
 
   Release-Snapshot:
     runs-on: ubuntu-latest
@@ -64,6 +68,9 @@ jobs:
         with:
           arguments: >
             publishMavenPublicationToSonatypeRepository
+            -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
+            -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
+            -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}
             -Psnapshot=true
             -PsonatypeUsername=${{ secrets.MAVENCENTRALUSERNAME }}
             -PsonatypePassword=${{ secrets.MAVENCENTRALPASSWORD }}
@@ -102,6 +109,9 @@ jobs:
         with:
           arguments: >
             publishMavenPublicationToSonatypeRepository
+            -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
+            -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
+            -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}
             -PprojectVersion=${{ github.event.inputs.version }}
             -PsonatypeUsername=${{ secrets.MAVENCENTRALUSERNAME }}
             -PsonatypePassword=${{ secrets.MAVENCENTRALPASSWORD }}
