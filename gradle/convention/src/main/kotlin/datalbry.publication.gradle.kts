@@ -3,8 +3,6 @@ plugins {
     `maven-publish`
 }
 
-project.tasks.withType(PublishToMavenRepository::class) { dependsOn(project.tasks.clean) }
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
