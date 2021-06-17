@@ -108,7 +108,7 @@ jobs:
         name: Release to staging
         with:
           arguments: >
-            publishMavenPublicationToSonatypeRepository &&
+            publishMavenPublicationToSonatypeRepository
             closeAndReleaseSonatypeStagingRepository
             -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
             -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
