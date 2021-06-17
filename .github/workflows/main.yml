@@ -105,10 +105,24 @@ jobs:
             -PprojectVersion=${{ github.event.inputs.version }}
 
       - uses: eskatos/gradle-command-action@v1
-        name: Release
+        name: Release to staging
         with:
           arguments: >
             publishMavenPublicationToSonatypeRepository
+            -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
+            -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
+            -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}
+            -PprojectVersion=${{ github.event.inputs.version }}
+            -PsonatypeUsername=${{ secrets.MAVENCENTRALUSERNAME }}
+            -PsonatypePassword=${{ secrets.MAVENCENTRALPASSWORD }}
+            -Psigning.gnupg.keyName=${{ secrets.GNUPG_SECRET_NAME }}
+            -Psigning.gnupg.passphrase=${{ secrets.GNUPG_SECRET_PASSWORD }}
+
+      - uses: eskatos/gradle-command-action@v1
+        name: Release and close staging
+        with:
+          arguments: >
+            closeAndReleaseSonatypeStagingRepository
             -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
             -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
             -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}
