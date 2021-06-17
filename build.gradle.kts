@@ -4,4 +4,4 @@ plugins {
     idea
 }
 
-group = "io.datalbry.client"
+group = "io.datalbry.jetbrains"
