@@ -64,7 +64,8 @@ fun MavenPublication.publication() {
 }
 
 fun buildArtifactName(group: String? = null, project: String? = null, module: String? = null): String {
-    return listOfNotNull(group, project, module).distinct().joinToString("-")
+    return removeConsecutive(listOfNotNull(group, project, module).flatMap { it.split('-') })
+        .joinToString("-")
 }
 
 fun buildHumanReadableName(name: String) = name
@@ -78,4 +79,14 @@ fun extractArtifactGroup(group: String): String? {
     val withoutDomain = elements.drop(2)
     // if anything remains, that’s our artifact group
     return withoutDomain.lastOrNull()
+}
+
+fun <T> removeConsecutive(list: List<T>): List<T> {
+    val result = mutableListOf<T>()
+    for (el in list) {
+        if (el != result.lastOrNull()) {
+            result.add(el)
+        }
+    }
+    return result
 }
