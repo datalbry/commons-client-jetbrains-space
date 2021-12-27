@@ -1,0 +1,39 @@
+name: Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout
+
+      - uses: actions/setup-java@v1
+        name: Setup Java
+        with:
+          java-version: 11
+
+      - uses: eskatos/gradle-command-action@v1
+        name: Fetch Dependencies
+        with:
+          arguments: dependencies
+
+      - uses: eskatos/gradle-command-action@v1
+        name: Assemble
+        with:
+          arguments: assemble
+
+      - uses: eskatos/gradle-command-action@v1
+        name: Tests
+        with:
+          arguments: >
+            test
+            -Pjetbrains.space.client.id=${{ secrets.JETBRAINS_SPACE_CLIENT_ID }}
+            -Pjetbrains.space.client.secret=${{ secrets.JETBRAINS_SPACE_CLIENT_SECRET }}
+            -Pjetbrains.space.client.uri=${{ secrets.JETBRAINS_SPACE_CLIENT_URI }}

@@ -1,19 +1,32 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("datalbry.repositories")
     kotlin("jvm")
     `java-library`
     idea
     jacoco
 }
 
-version = project.rootProject.version
-group = project.rootProject.group
+val registryUrl = findPropertyOrEnv("maven.registry")
+fun findPropertyOrEnv(property: String): String? {
+    return project.findProperty(property) as String?
+        ?: System.getenv(property.replace('.', '_')
+            .toUpperCase())
+}
+repositories {
+    if (registryUrl != null) {
+        maven { url = uri(registryUrl) }
+    }
+    mavenCentral()
+    google()
+}
+
+version = rootProject.version
+group = rootProject.group
 
 dependencies {
-    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.5.30")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.30")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.4.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.4.21")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -40,7 +53,11 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-java {
+configure<JavaPluginExtension> {
     withJavadocJar()
     withSourcesJar()
+
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }

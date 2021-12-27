@@ -2,16 +2,17 @@ enableFeaturePreview("VERSION_CATALOGS")
 rootProject.name = "jetbrains-space"
 
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-    }
+        repositories {
+                gradlePluginPortal()
+                mavenCentral()
+                google()
+        }
 }
 
 includeBuild("gradle/convention")
 
 include(
-    "client",
-    "client-api"
+        "client",
+        "client-api"
 )
 
