@@ -19,6 +19,7 @@ repositories {
     }
     mavenCentral()
     google()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/space/maven") }
 }
 
 version = rootProject.version
