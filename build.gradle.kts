@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.datalbry.jetbrains"
-version = "0.0.2"
+
 
 semver {
     version("alpha", "alpha.{COMMIT_TIMESTAMP}")
